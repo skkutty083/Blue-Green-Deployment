@@ -1,13 +1,12 @@
-# Use a multi-arch compatible JDK image
+# -------- Build stage --------
+FROM eclipse-temurin:17-jdk-jammy AS build
+WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
+
+# -------- Runtime stage --------
 FROM eclipse-temurin:17-jdk-jammy
-
+WORKDIR /usr/src/app
 EXPOSE 8080
-
-ENV APP_HOME /usr/src/app
-WORKDIR $APP_HOME
-
-# Copy the application JAR
-COPY target/*.jar app.jar
-
-# Run the JAR
+COPY --from=build /app/target/*.jar app.jar
 CMD ["java", "-jar", "app.jar"]
